@@ -5,6 +5,7 @@
 *.tfstate.backup
 *.tfplan
 terraform.tfvars      # Uncomment if your tfvars contain secrets
+*.tfvars.local
 
 # Node.js
 node_modules/

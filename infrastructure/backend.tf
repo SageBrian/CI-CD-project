@@ -4,10 +4,10 @@
 
 terraform {
   backend "s3" {
-    bucket         = "your-tf-state-bucket-CHANGEME"  # Must be globally unique
+    bucket         = "briankt-tf-state-cicd"  # Must be globally unique
     key            = "cicd-demo/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-lock"
+    dynamodb_table = "briankt-tf-state-lock"
     encrypt        = true  # Encrypts state file at rest
   }
 }
