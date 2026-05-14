@@ -1,0 +1,38 @@
+# .github/workflows/terraform-validate.yml
+# Runs on every Pull Request — validates Terraform before it gets merged
+# This is a real-world practice: catch IaC errors before they hit AWS
+
+name: Terraform Validate
+
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/**'  # Only runs when Terraform files change
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.5"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        # Fails if any .tf file isn't properly formatted
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        # -backend=false skips S3 state — we just want to validate syntax
+
+      - name: Terraform Validate
+        run: terraform validate
+        # Checks for syntax errors and valid resource references

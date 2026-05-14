@@ -1,0 +1,49 @@
+version: 0.2
+
+# CodeBuild build specification
+# This file tells CodeBuild how to build and test our application
+
+env:
+  parameter-store:
+    # Secrets pulled from SSM Parameter Store — never hardcoded
+    APP_ENV: /cicd-demo/app/environment
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "=== Installing dependencies ==="
+      - cd app && npm ci  # ci is stricter than install — uses package-lock.json exactly
+
+  pre_build:
+    commands:
+      - echo "=== Running tests ==="
+      - cd app && npm test
+      - echo "Tests passed at $(date)"
+
+  build:
+    commands:
+      - echo "=== Building application ==="
+      - echo "Build started on $(date)"
+      - echo "Commit SHA $CODEBUILD_RESOLVED_SOURCE_VERSION" > app/version.txt
+
+  post_build:
+    commands:
+      - echo "=== Build complete ==="
+      - echo "Build completed on $(date)"
+
+artifacts:
+  # Everything that CodeDeploy will receive
+  files:
+    - app/**/*
+    - scripts/**/*
+    - appspec.yml
+  discard-paths: no
+
+reports:
+  # Publishes test results to CodeBuild console
+  jest-reports:
+    files:
+      - "app/coverage/clover.xml"
+    file-format: CLOVERXML
